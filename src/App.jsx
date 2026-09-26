@@ -35,6 +35,14 @@ function App() {
     );
   }
 
+  function deleteTask(id) {
+    setTasks(
+      tasks.filter((task) => {
+        return task.id !== id;
+      }),
+    );
+  }
+
   return (
     <>
       <div className="adding">
@@ -43,19 +51,31 @@ function App() {
           placeholder="Добавить задачу"
           onChange={(e) => setNewTask(e.target.value)}
         ></input>
-        <button className="add-btn" onClick={addTask}>+</button>
+        <button className="add-btn" onClick={addTask}>
+          +
+        </button>
       </div>
 
       <div className="tasks-block">
         {tasks.map((task, index) => {
           return (
-            <div className="task"
+            <div
+              className= {task.completed ? "task completed" : "task"}
               onClick={() => {
                 toggleTask(task.id);
               }}
               key={task.id}
             >
-              {task.text}
+              <p>{task.text}</p>
+              <button
+                className="delete-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteTask(task.id);
+                }}
+              >
+                Удалить
+              </button>
             </div>
           );
         })}

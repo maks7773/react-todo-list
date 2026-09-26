@@ -1,4 +1,3 @@
-
 * {
   margin: 0;
   padding: 0;
@@ -60,16 +59,19 @@ input:focus {
   transform: scale(0.95);
 }
 
-.tasks-block{
+.tasks-block {
   width: 800px;
   margin: 40px auto 0;
   display: flex;
   flex-direction: column;
 }
 
-.task{
+.completed {
+  opacity: 20%;
+}
+
+.task {
   height: 60px;
-  padding: 20px;
   background-color: rgb(70, 70, 70);
   border: 2px solid rgb(201, 201, 11);
   border-radius: 12px;
@@ -77,9 +79,39 @@ input:focus {
   color: white;
   font-size: 16px;
   transition: 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.task:hover{
+.task:hover {
   transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(201, 201, 11, 0.3);
+}
+
+.task p {
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  padding-left: 20px;
+  font-weight: 700;
+}
+
+.delete-btn {
+  margin-right: 20px;
+  height: 30px;
+  width: 100px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: none;
+  color: rgb(70, 70, 70);
+  font-size: 16px;
+  background-color: rgb(201, 201, 11);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  transform: scale(1.05);
   box-shadow: 0 0 10px rgba(201, 201, 11, 0.3);
 }
