@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
+  const [editingTask, setEditingTask] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
 
   function addTask() {
     if (newTask.trim() === "") {
@@ -43,10 +46,54 @@ function App() {
     );
   }
 
+  function saveTask(id) {
+    if (editText.trim() === "") {
+      alert("Напиите что нибудь");
+    } else {
+      setTasks(
+        tasks.map((task) => {
+          if (task.id === id) {
+            return {
+              ...task,
+              text: editText,
+            };
+          } else {
+            return task;
+          }
+        }),
+      );
+      setEditingTask(null);
+    }
+  }
+
+  function saveToLocal() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
+  
+  useEffect(() => {
+    if (JSON.parse(localStorage.getItem("tasks"))) {
+      setTasks(JSON.parse(localStorage.getItem("tasks")));
+      setIsLocalLoaded(true)
+    } else {
+      setTasks([]);
+      setIsLocalLoaded(true)
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLocalLoaded) {
+      saveToLocal();
+    } 
+    
+  }, [tasks, isLocalLoaded]);
+
+  
+
   return (
     <>
       <div className="adding">
         <input
+          className="main-input"
           value={newTask}
           placeholder="Добавить задачу"
           onChange={(e) => setNewTask(e.target.value)}
@@ -60,22 +107,56 @@ function App() {
         {tasks.map((task, index) => {
           return (
             <div
-              className= {task.completed ? "task completed" : "task"}
+              className={task.completed ? "task completed" : "task"}
               onClick={() => {
                 toggleTask(task.id);
               }}
               key={task.id}
             >
-              <p>{task.text}</p>
-              <button
-                className="delete-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteTask(task.id);
-                }}
-              >
-                Удалить
-              </button>
+              {task.id === editingTask ? (
+                <input
+                  className="edit-input"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                ></input>
+              ) : (
+                <p>{task.text}</p>
+              )}
+
+              <div className="btn-menu">
+                <button
+                  className="delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteTask(task.id);
+                  }}
+                >
+                  Delete
+                </button>
+                {task.id === editingTask ? (
+                  <button
+                    className="save-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      saveTask(task.id);
+                    }}
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <button
+                    className="edit-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingTask(task.id);
+                      setEditText(task.text);
+                    }}
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
