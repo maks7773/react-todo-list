@@ -7,6 +7,7 @@ function App() {
   const [editingTask, setEditingTask] = useState(null);
   const [editText, setEditText] = useState("");
   const [isLocalLoaded, setIsLocalLoaded] = useState(false);
+  const [filter, setFilter] = useState(null);
 
   function addTask() {
     if (newTask.trim() === "") {
@@ -69,25 +70,34 @@ function App() {
   function saveToLocal() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }
-  
+
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("tasks"))) {
       setTasks(JSON.parse(localStorage.getItem("tasks")));
-      setIsLocalLoaded(true)
+      setIsLocalLoaded(true);
     } else {
       setTasks([]);
-      setIsLocalLoaded(true)
+      setIsLocalLoaded(true);
     }
   }, []);
 
   useEffect(() => {
     if (isLocalLoaded) {
       saveToLocal();
-    } 
-    
+    }
   }, [tasks, isLocalLoaded]);
 
-  
+  let filteredTasks = [];
+
+  if (filter === "all") {
+    filteredTasks = tasks;
+  } else if (filter === "completed") {
+    filteredTasks = tasks.filter((task) => task.completed);
+  } else if (filter === "active") {
+    filteredTasks = tasks.filter((task) => !task.completed);
+  } else {
+    filteredTasks = tasks;
+  }
 
   return (
     <>
@@ -103,8 +113,20 @@ function App() {
         </button>
       </div>
 
+      <div className="filters-menu">
+        <button className="filter-btn" onClick={() => setFilter("all")}>
+          All
+        </button>
+        <button className="filter-btn" onClick={() => setFilter("completed")}>
+          Completed
+        </button>
+        <button className="filter-btn" onClick={() => setFilter("active")}>
+          Active
+        </button>
+      </div>
+
       <div className="tasks-block">
-        {tasks.map((task, index) => {
+        {filteredTasks.map((task, index) => {
           return (
             <div
               className={task.completed ? "task completed" : "task"}
