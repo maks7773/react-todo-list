@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import TaskItem from "./assets/TaskItem";
+import FilterMenu from "./assets/FilterMenu";
+import AddTask from "./assets/AddTask";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -7,7 +10,7 @@ function App() {
   const [editingTask, setEditingTask] = useState(null);
   const [editText, setEditText] = useState("");
   const [isLocalLoaded, setIsLocalLoaded] = useState(false);
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState("all");
 
   function addTask() {
     if (newTask.trim() === "") {
@@ -67,6 +70,10 @@ function App() {
     }
   }
 
+  function clearCompleted() {
+    setTasks(tasks.filter((task) => !task.completed));
+  }
+
   function saveToLocal() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }
@@ -87,102 +94,51 @@ function App() {
     }
   }, [tasks, isLocalLoaded]);
 
-  let filteredTasks = [];
+  let filteredTasks = tasks.filter((task) => {
+    if (filter === "all") {
+      return true;
+    } else if (filter === "completed") {
+      return task.completed;
+    } else if (filter === "active") {
+      return !task.completed;
+    }
+  });
 
-  if (filter === "all") {
-    filteredTasks = tasks;
-  } else if (filter === "completed") {
-    filteredTasks = tasks.filter((task) => task.completed);
-  } else if (filter === "active") {
-    filteredTasks = tasks.filter((task) => !task.completed);
-  } else {
-    filteredTasks = tasks;
-  }
+  const countAll = tasks.length;
+  const countCompleted = tasks.filter((task) => task.completed).length;
+  const countActive = tasks.filter((task) => !task.completed).length;
 
   return (
     <>
-      <div className="adding">
-        <input
-          className="main-input"
-          value={newTask}
-          placeholder="Добавить задачу"
-          onChange={(e) => setNewTask(e.target.value)}
-        ></input>
-        <button className="add-btn" onClick={addTask}>
-          +
-        </button>
-      </div>
+      <AddTask newTask={newTask} setNewTask={setNewTask} addTask={addTask} />
 
-      <div className="filters-menu">
-        <button className="filter-btn" onClick={() => setFilter("all")}>
-          All
-        </button>
-        <button className="filter-btn" onClick={() => setFilter("completed")}>
-          Completed
-        </button>
-        <button className="filter-btn" onClick={() => setFilter("active")}>
-          Active
-        </button>
+      <FilterMenu filter={filter} setFilter={setFilter} />
+
+      <div className="info-menu">
+        <p className="info-text">Всего: {countAll}</p>
+        <p className="info-text">Выполнено: {countCompleted}</p>
+        <p className="info-text">Активных: {countActive}</p>
       </div>
 
       <div className="tasks-block">
         {filteredTasks.map((task, index) => {
           return (
-            <div
-              className={task.completed ? "task completed" : "task"}
-              onClick={() => {
-                toggleTask(task.id);
-              }}
-              key={task.id}
-            >
-              {task.id === editingTask ? (
-                <input
-                  className="edit-input"
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                ></input>
-              ) : (
-                <p>{task.text}</p>
-              )}
-
-              <div className="btn-menu">
-                <button
-                  className="delete-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteTask(task.id);
-                  }}
-                >
-                  Delete
-                </button>
-                {task.id === editingTask ? (
-                  <button
-                    className="save-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      saveTask(task.id);
-                    }}
-                  >
-                    Save
-                  </button>
-                ) : (
-                  <button
-                    className="edit-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingTask(task.id);
-                      setEditText(task.text);
-                    }}
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
-            </div>
+            <TaskItem
+              task={task}
+              toggleTask={toggleTask}
+              deleteTask={deleteTask}
+              saveTask={saveTask}
+              editingTask={editingTask}
+              editText={editText}
+              setEditingTask={setEditingTask}
+              setEditText={setEditText}
+            />
           );
         })}
       </div>
+      <button className="clear-btn" onClick={() => clearCompleted()}>
+        Clear completed
+      </button>
     </>
   );
 }
