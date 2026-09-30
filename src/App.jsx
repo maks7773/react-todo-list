@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import TaskItem from "./assets/TaskItem";
 import FilterMenu from "./assets/FilterMenu";
@@ -94,15 +94,17 @@ function App() {
     }
   }, [tasks, isLocalLoaded]);
 
-  let filteredTasks = tasks.filter((task) => {
-    if (filter === "all") {
-      return true;
-    } else if (filter === "completed") {
-      return task.completed;
-    } else if (filter === "active") {
-      return !task.completed;
-    }
-  });
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (filter === "all") {
+        return true;
+      } else if (filter === "completed") {
+        return task.completed;
+      } else if (filter === "active") {
+        return !task.completed;
+      }
+    });
+  }, [tasks, filter]);
 
   const countAll = tasks.length;
   const countCompleted = tasks.filter((task) => task.completed).length;
@@ -121,9 +123,10 @@ function App() {
       </div>
 
       <div className="tasks-block">
-        {filteredTasks.map((task, index) => {
+        {filteredTasks.map((task) => {
           return (
             <TaskItem
+              key={task.id}
               task={task}
               toggleTask={toggleTask}
               deleteTask={deleteTask}
